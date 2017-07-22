@@ -2,6 +2,9 @@
 
 	if ( ! isset( $content_width ) ) $content_width = 960;
 
+//Silence Deprecataed PHP alarm
+add_filter('deprecated_constructor_trigger_error', '__return_false');
+
 
 //Register Main Navigation
 	if ( function_exists( 'register_nav_menu' ) ) {
