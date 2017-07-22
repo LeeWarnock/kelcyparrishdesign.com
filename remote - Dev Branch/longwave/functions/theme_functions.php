@@ -7,14 +7,14 @@
 	if ( function_exists( 'register_nav_menu' ) ) {
 		register_nav_menu( 'navigation', 'Main Navigation' );
 	}
-	
-//Featured Image Support	
+
+//Featured Image Support
 	add_theme_support( 'post-thumbnails' );
 
 //Walker Extension if necessary
 	class description_walker extends Walker_Nav_Menu
 	{
-	      function start_el(&$output, $item, $depth, $args)
+	      function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 )
 	      {
 	           global $wp_query;
 	           $indent = ( $depth ) ? str_repeat( "\t", $depth ) : '';
@@ -35,7 +35,7 @@
 
 	           $prepend = '';
 	           $append = '';
-	           	
+
 	           if($depth == 0)
 	           {
 	               $description_before = $description_after = $append = $prepend = "";
@@ -49,7 +49,7 @@
 	            $item_output .= $description_before.'<a'. $attributes .'>';
 	            $item_output .= $args->link_before .$prepend.apply_filters( 'the_title', $item->title, $item->ID ).$append;
 	            $item_output .= '</a>'.$description_after;
-	            
+
 	            $item_output .= $args->after;
 
 	            $output .= apply_filters( 'walker_nav_menu_start_el', $item_output, $item, $depth, $args );
@@ -65,12 +65,12 @@
 			$excerpt = implode(" ",$excerpt).'...';
 		} else {
 			$excerpt = implode(" ",$excerpt);
-		} 
+		}
 		$excerpt = preg_replace('`\[[^\]]*\]`','',$excerpt);
-	
+
 		return $excerpt;
 	}
-	
+
 	function content($limit) {
 		$excerpt = explode(' ', get_the_content(), $limit);
 		if (count($excerpt)>=$limit) {
@@ -78,16 +78,16 @@
 			$excerpt = implode(" ",$excerpt).'...';
 		} else {
 			$excerpt = implode(" ",$excerpt);
-		} 
+		}
 		$excerpt = preg_replace('`\[[^\]]*\]`','',$excerpt);
-	
+
 		if($limit<1) $excerpt = "";
-	
+
 		return $excerpt;
 	}
-	
+
 	function excerpt_by_id($limit,$post_id) {
-		global $post;  
+		global $post;
 		$save_post = $post;
 		$post = get_post($post_id);
 		$excerpt = explode(' ', get_the_excerpt(), $limit);
@@ -96,7 +96,7 @@
 			$excerpt = implode(" ",$excerpt).'...';
 		} else {
 			$excerpt = implode(" ",$excerpt);
-		} 
+		}
 		$excerpt = preg_replace('`\[[^\]]*\]`','',$excerpt);
 		$post = $save_post;
 		return $excerpt;
@@ -122,10 +122,10 @@
 			if(isset($content_array->ID)){
 	        	$id = $content_array->ID;
 			}
-	    endif;   
-	
+	    endif;
+
 	    $first_array = get_post_custom_keys($id);
-	
+
 		if(isset($first_array)){
 			foreach ($first_array as $key => $value) :
 				   $second_array[$value] =  get_post_meta($id, $value, FALSE);
@@ -134,7 +134,7 @@
 					endforeach;
 			 endforeach;
 		 }
-		
+
 		if(isset($result)){
 	    	return $result;
 		}
@@ -147,7 +147,7 @@
 		} else {
 			return array_merge(get_option("tb_longwave_theme_general_options"),get_option("tb_longwave_theme_header_options"),get_option("tb_longwave_theme_body_options"),get_option("tb_longwave_theme_blog_options"));
 		}
-			
+
 	}
 
 
@@ -165,32 +165,32 @@
 	function widget_first_last_classes($params) {
 		global $my_widget_num; // Global a counter array
 		$this_id = $params[0]['id']; // Get the id for the current sidebar we're processing
-		$arr_registered_widgets = wp_get_sidebars_widgets(); // Get an array of ALL registered widgets	
-	
+		$arr_registered_widgets = wp_get_sidebars_widgets(); // Get an array of ALL registered widgets
+
 		if(!$my_widget_num) {// If the counter array doesn't exist, create it
 			$my_widget_num = array();
 		}
-	
+
 		if(!isset($arr_registered_widgets[$this_id]) || !is_array($arr_registered_widgets[$this_id])) { // Check if the current sidebar has no widgets
 			return $params; // No widgets in this sidebar... bail early.
 		}
-	
+
 		if(isset($my_widget_num[$this_id])) { // See if the counter array has an entry for this sidebar
 			$my_widget_num[$this_id] ++;
 		} else { // If not, create it starting with 1
 			$my_widget_num[$this_id] = 1;
 		}
-	
+
 		$class = 'class="widget-' . $my_widget_num[$this_id] . ' '; // Add a widget number class for additional styling options
-	
+
 		if($my_widget_num[$this_id] == 1 && $my_widget_num[$this_id] != count($arr_registered_widgets[$this_id])) { // If this is the first widget
 			$class .= ' first ';
 		} elseif($my_widget_num[$this_id] == count($arr_registered_widgets[$this_id])) { // If this is the last widget
 			$class .= ' last ';
 		}
-	
+
 		$params[0]['before_widget'] = str_replace('class="', $class, $params[0]['before_widget']); // Insert our new classes into "before widget"
-	
+
 		return $params;
 	}
 	add_filter('dynamic_sidebar_params','widget_first_last_classes');
@@ -199,27 +199,27 @@
 //Special Comment Reply Link
 	function special_comment_reply_link($args = array(), $comment = null, $post = null) {
 	        global $user_ID;
-	
+
 	        $defaults = array('add_below' => 'comment', 'respond_id' => 'respond', 'reply_text' => __('Reply','tb_longwave'),
 	                'login_text' => __('Log in to Reply','tb_longwave'), 'depth' => 0, 'before' => '', 'after' => '');
-	
+
 	        $args = wp_parse_args($args, $defaults);
-	
+
 	        if ( 0 == $args['depth'] || $args['max_depth'] <= $args['depth'] )
 	                return;
-	
+
 	        extract($args, EXTR_SKIP);
-	
+
 	        $comment = get_comment($comment);
 	        if ( empty($post) )
 	                $post = $comment->comment_post_ID;
 	        $post = get_post($post);
-	
+
 	        if ( !comments_open($post->ID) )
 	                return false;
-	
+
 	        $link = '';
-	
+
 	        if ( get_option('comment_registration') && !$user_ID )
 	                $link = '<a rel="nofollow" class="comment-reply-login tpbutton buttondark leftfloat" href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . $login_text . '</a>';
 	        else
@@ -295,7 +295,7 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 		//else check if cache exists
 		elseif(file_exists(str_replace(".".$ext,"@2x.".$ext,$destfilename)) && getimagesize(str_replace(".".$ext,"@2x.".$ext,$destfilename))) {
 			$img_url = "{$upload_url}{$dst_rel_path}-{$suffix}@2x.{$ext}";
-		} 
+		}
 		//else, we resize the image and return the new resized image url
 		else {
 			// Note: This pre-3.5 fallback check will edited out in subsequent version
@@ -303,13 +303,13 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 				$editor = wp_get_image_editor($img_path);
 				if ( is_wp_error( $editor ) || is_wp_error( $editor->resize( $width*2, $height*2, $crop ) ) )
 					return false;
-	
+
 				$resized_img_path = $editor->save();
-	
+
 			} else {
 				$resized_img_path = image_resize( $img_path, $width*2, $height*2, $crop ); // Fallback foo
 			}
-	
+
 			if(!is_wp_error($resized_img_path)) {
 				rename($resized_img_path["path"], str_replace(".".$ext,"@2x.".$ext,$destfilename));
 			} else {
@@ -317,7 +317,7 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 			}
 		}
 	}
-	
+
 
 	if(!$dst_h) {
 		//can't resize, so return original url
@@ -328,7 +328,7 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 	//else check if cache exists
 	elseif(file_exists($destfilename) && getimagesize($destfilename)) {
 		$img_url = "{$upload_url}{$dst_rel_path}-{$suffix}.{$ext}";
-	} 
+	}
 	//else, we resize the image and return the new resized image url
 	else {
 
@@ -353,8 +353,8 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 		}
 
 	}
-	
-	
+
+
 
 	//return the output
 	if($single) {
@@ -368,7 +368,7 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 			2 => $dst_h
 		);
 	}
-	
+
 	return $image;
 }
 
@@ -377,7 +377,7 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 	function HexToRGB($hex) {
 		$hex = ereg_replace("#", "", $hex);
 		$color = array();
- 
+
 		if(strlen($hex) == 3) {
 			$color['r'] = hexdec(substr($hex, 0, 1) . $r);
 			$color['g'] = hexdec(substr($hex, 1, 1) . $g);
@@ -388,10 +388,10 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 			$color['g'] = hexdec(substr($hex, 2, 2));
 			$color['b'] = hexdec(substr($hex, 4, 2));
 		}
- 
+
 		return $color;
 	}
-	
+
 //Parse Uneeded Half Open Tags
 	function fix_shortcodes($content){
 			$columns = array("one-half","one-third","two-third","one-fourth","three-fourth","one-fifth","two-fifth","three-fifth","four-fifth","one-sixth","five-sixth","intro","divider","button","tabs","tab","dropcap","socialbar","sharebar","toggle","box","codebox","headline","headsubline","contact-form-7","latest_posts","latest_projects","portfolio_info_set","portfolio_info","portfolio","testimonials","quote","checklist","twitter","facebook_page","dribbble","flickr","client","client_list","pricetable_column","pricetable","tbicon","contact_info","darkframe","gmap","spacer","rev_slider","progbar","progress");
@@ -399,18 +399,18 @@ function aq_resize( $url, $width, $height = null, $crop = null, $single = true, 
 
 			// opening tag
 			$rep = preg_replace("/(<p>)?\[($block)(\s[^\]]+)?\](<\/p>|<br \/>)?/","[$2$3]",$content);
-			
+
 			// closing tag
 			$rep = preg_replace("/(<p>)?\[\/($block)](<\/p>|<br \/>)/","[/$2]",$rep);
-			
+
 			return $rep;
 	}
 	add_filter('the_content', 'fix_shortcodes');
-	
+
 //Allow Contact Form 7 Forms to include shortcodes
-	
-	add_filter( 'wpcf7_form_elements', 'mycustom_wpcf7_form_elements' );	
-	
+
+	add_filter( 'wpcf7_form_elements', 'mycustom_wpcf7_form_elements' );
+
 	function mycustom_wpcf7_form_elements( $form ) {
 		$array = array (
 	                '<p>[' => '[',
@@ -427,12 +427,12 @@ add_filter('widget_text', 'do_shortcode');
 
 //Rebuild Search Form
 	function rebuild_search_form($form) {
-	
+
 	    $form = '<form class="searchform" method="get" action="'.get_bloginfo("url").'">
 	        <input type="text" name="s" value="'. __('type and hit enter', 'tb_longwave') .'" onfocus="this.value=\'\'" onblur="this.value=\''. __('type and hit enter', 'tb_longwave') .'\'"/>
 	      </form>';
 	    return $form;
-		
+
 	}
 	add_filter( 'get_search_form', 'rebuild_search_form' );
 
@@ -464,7 +464,7 @@ add_filter('widget_text', 'do_shortcode');
 				 	}
 			 	}
 			}
-		if(!empty($return_value))	
+		if(!empty($return_value))
 			return $return_value;
 	}
 
@@ -478,7 +478,7 @@ add_filter('widget_text', 'do_shortcode');
 	          $link = get_term_link( intval($tag->term_id), 'post_tag' );
 	      if ( is_wp_error( $link ) )
 	          return false;
-	
+
 	      $tags[ $key ]->link = $link;
 	      $tags[ $key ]->id = $tag->term_id;
 	      $tags[ $key ]->name = $tag->name;
@@ -486,15 +486,15 @@ add_filter('widget_text', 'do_shortcode');
 	      }
 	  return $tags;
 	}
-	
+
 //Get all Custom Post Types
 	function get_registered_post_types() {
 	    global $wp_post_types;
-	
+
 	    return array_keys( $wp_post_types );
 	}
-	
-//Get the excluded Categories from the Portfolio	
+
+//Get the excluded Categories from the Portfolio
 	function get_excluded_portfolio_categories($post_id){
 		$page_options = getOptions($post_id);
 		$taxonomy = 'category_portfolio';
@@ -542,7 +542,7 @@ add_filter('widget_text', 'do_shortcode');
 			}
 
 			$excluded_categories = array_map( 'intval', $excluded_categories );
-				
+
 			if ( ! empty( $cat_array ) ) {
 				$excluded_categories = array_diff($excluded_categories, $cat_array);
 				$posts_in_ex_cats_sql = '';
